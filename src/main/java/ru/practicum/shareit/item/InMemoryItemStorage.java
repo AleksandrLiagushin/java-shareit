@@ -15,8 +15,7 @@ public class InMemoryItemStorage implements ItemStorage {
     private long uniqueId;
 
     @Override
-    public Item create(long userId, Item item) {
-        item.setOwner(userId);
+    public Item create(Item item) {
         item.setId(generateId());
         items.put(item.getId(), item);
         return item;
@@ -26,7 +25,7 @@ public class InMemoryItemStorage implements ItemStorage {
     public Item update(long userId, long itemId, Item item) {
         item.setOwner(userId);
         item.setId(itemId);
-        items.replace(itemId, item);
+        items.replace(item.getId(), item);
         return item;
     }
 

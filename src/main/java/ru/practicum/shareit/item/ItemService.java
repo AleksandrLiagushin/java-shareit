@@ -18,11 +18,11 @@ public class ItemService {
     private final ItemMapper itemMapper;
     private final UserStorage userStorage;
 
-    public ItemDto create(long userId, Item item) {
-        if (!userStorage.contains(userId)) {
+    public ItemDto create(Item item) {
+        if (!userStorage.contains(item.getOwner())) {
             throw new UserNotFoundException("This item is owned by other user");
         }
-        return itemMapper.toDto(itemStorage.create(userId, item));
+        return itemMapper.toDto(itemStorage.create(item));
     }
 
     public ItemDto update(long userId, long itemId, Item item) {
