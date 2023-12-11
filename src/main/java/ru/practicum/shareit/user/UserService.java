@@ -26,7 +26,6 @@ public class UserService {
         } catch (Exception e) {
             throw new UserCreationException("User with such email already exists");
         }
-
     }
 
     @Transactional
@@ -35,7 +34,7 @@ public class UserService {
             throw new UserNotExistException("No user with such was found");
         }
 
-        User saved = userStorage.findById(id).orElseThrow() ;
+        User saved = userStorage.findById(id).orElseThrow();
 
         if (user.getName() != null) {
             saved.setName(user.getName());

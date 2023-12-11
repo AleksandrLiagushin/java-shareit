@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.Column;
@@ -43,9 +42,4 @@ public class Item {
 
     @Column(name = "is_available")
     private Boolean available;
-
-    @ManyToOne
-    @JoinColumn(name = "request_id")
-    private ItemRequest requestId;
-
 }
