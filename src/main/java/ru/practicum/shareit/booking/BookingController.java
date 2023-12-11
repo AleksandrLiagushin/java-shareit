@@ -34,7 +34,7 @@ public class BookingController {
     @GetMapping("/{bookingId}")
     public Booking getBooking(@RequestHeader("X-Sharer-User-Id") long userId,
                               @PathVariable long bookingId) {
-        log.info("Get information by booking for owner item or booker only");
+        log.info("Requested booking with id = {} from user id = {}", bookingId, userId);
         return bookingService.getBooking(userId, bookingId);
     }
 
@@ -42,20 +42,21 @@ public class BookingController {
     public Booking checkRequest(@RequestHeader("X-Sharer-User-Id") long userId,
                                 @PathVariable long bookingId,
                                 @RequestParam String approved) {
-        log.info("Check request booking");
+        log.info("Requested checking for booking id = {}", bookingId);
         return bookingService.checkRequest(userId, bookingId, approved);
     }
 
     @GetMapping
     public List<Booking> getBookingsByStatus(@RequestHeader("X-Sharer-User-Id") long userId,
                                              @RequestParam(defaultValue = "ALL") String state) {
-        log.info("Get list of user's bookings");
+        log.info("Requested all bookings with state = {} of user id = {}", state, userId);
         return bookingService.getBookingsByStatus(userId, state);
     }
 
     @GetMapping("/owner")
     public List<Booking> getUserBookings(@RequestHeader("X-Sharer-User-Id") long userId,
                                          @RequestParam(defaultValue = "ALL") String state) {
+        log.info("Requested all bookings with {} state for owner = {}", state, userId);
         return bookingService.getUserBookings(userId, state);
     }
 }

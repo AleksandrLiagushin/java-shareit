@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional(readOnly = true)
 public class BookingService {
     private final BookingRepo bookingStorage;
@@ -46,7 +44,9 @@ public class BookingService {
         if (!itemStorage.existsById(bookingDto.getItemId())) {
             throw new ItemNotFoundException("No item with such id was found");
         }
+
         Item saved = itemStorage.findById(bookingDto.getItemId()).orElseThrow();
+
         if (!saved.getAvailable()) {
             throw new AvailabilityException("Item is not available");
         }
@@ -64,50 +64,46 @@ public class BookingService {
     @Transactional
     public Booking checkRequest(long userId, long bookingId, String approved) {
 
-        Booking saveBooking = bookingStorage.findById(bookingId).orElseThrow();
-        saveBooking.setBooker(userStorage.getReferenceById(saveBooking.getBooker().getId()));
-        saveBooking.setItem(itemStorage.getReferenceById(saveBooking.getItem().getId()));
-
         if (approved.isBlank()) {
-            throw new ItemNotFoundException("approved must be true/false");
-        }
-
-        if (bookingId == 0) {
-            throw new ItemNotFoundException("bookingId can't be null");
+            throw new ItemNotFoundException("Approved field can't be empty");
         }
 
         if (!bookingStorage.existsById(bookingId)) {
-            throw new ItemNotFoundException("This booking not found");
+            throw new ItemNotFoundException("Booking with such id doesn't exist");
         }
 
         if (!userStorage.existsById(userId)) {
             throw new UserNotFoundException("User not found");
         }
 
-        if (saveBooking.getItem().getOwner().getId() != userId) {
-            log.warn("Change status can only owner");
-            throw new UserNotFoundException("Change status can only owner");
+        Booking booking = bookingStorage.findById(bookingId).orElseThrow();
+        booking.setBooker(userStorage.getReferenceById(booking.getBooker().getId()));
+        booking.setItem(itemStorage.getReferenceById(booking.getItem().getId()));
+
+        if (booking.getItem().getOwner().getId() != userId) {
+            throw new UserNotFoundException("Only owner can change the status");
         }
 
-        if (saveBooking.getStatus().equals(BookingStatus.APPROVED)) {
+        if (booking.getStatus().equals(BookingStatus.APPROVED)) {
             throw new ItemNotExistException("This booking has been already approved");
         }
 
         switch (approved) {
             case "true":
-                if (!saveBooking.getItem().getAvailable()) {
-                    saveBooking.setStatus(BookingStatus.WAITING);
+                if (!booking.getItem().getAvailable()) {
+                    booking.setStatus(BookingStatus.WAITING);
                 }
-                saveBooking.setStatus(BookingStatus.APPROVED);
 
-                return saveBooking;
+                booking.setStatus(BookingStatus.APPROVED);
+
+                return booking;
 
             case "false":
-                saveBooking.setStatus(BookingStatus.REJECTED);
-                return saveBooking;
+                booking.setStatus(BookingStatus.REJECTED);
+                return booking;
 
             default:
-                throw new ItemNotFoundException("Approved must be true or false");
+                throw new ItemNotFoundException("Approved can be only true or false");
         }
     }
 
@@ -123,7 +119,7 @@ public class BookingService {
 
         if (saveBooking.getBooker().getId() != userId
                 && (saveBooking.getItem().getOwner().getId() != userId)) {
-            throw new ItemNotFoundException("Get information about booking can owner item or booker only");
+            throw new ItemNotFoundException("Only owner/booker can info about booking");
         }
 
         return saveBooking;
@@ -132,11 +128,11 @@ public class BookingService {
     public List<Booking> getBookingsByStatus(long userId, String state) {
 
         if (!userStorage.existsById(userId)) {
-            throw new ItemNotFoundException("This user not exist");
+            throw new ItemNotFoundException("User with such id doesn't exist");
         }
 
-        List<Booking> bookingsByUserId = bookingStorage.findByBookerId(userId);
-        return checkState(bookingsByUserId, state);
+        List<Booking> bookings = bookingStorage.findByBookerId(userId);
+        return checkState(bookings, state);
     }
 
     public List<Booking> getUserBookings(long ownerId, String state) {
@@ -144,58 +140,52 @@ public class BookingService {
         List<Item> itemByOwnerId = itemStorage.findByOwnerId(ownerId);
 
         if (itemByOwnerId.isEmpty()) {
-            throw new ItemNotFoundException("This owner haven't any item");
+            throw new ItemNotFoundException("No items have been found for this owner");
         }
 
         List<Long> allItemsByUser = itemByOwnerId.stream()
                 .map(Item::getId)
                 .collect(Collectors.toList());
-        List<Booking> saveBooking = bookingStorage.findByItemIdIn(allItemsByUser);
+        List<Booking> bookings = bookingStorage.findByItemIdIn(allItemsByUser);
 
-        return checkState(saveBooking, state);
-
+        return checkState(bookings, state);
     }
 
-    public List<Booking> checkState(List<Booking> saveBooking, String state) {
+    public List<Booking> checkState(List<Booking> bookings, String state) {
 
         switch (state) {
             case "ALL":
-                log.info("Get list by status ALL");
-                return saveBooking.stream()
+                return bookings.stream()
                         .sorted((Comparator.comparing(Booking::getStart)).reversed())
                         .collect(Collectors.toList());
 
             case "CURRENT":
-                log.info("Get list by status CURRENT");
-                return saveBooking.stream()
-                        .filter(x -> x.getEnd().isAfter(LocalDateTime.now()) && x.getStart().isBefore(LocalDateTime.now()))
+                return bookings.stream()
+                        .filter(x -> x.getStart().isBefore(LocalDateTime.now())
+                                && x.getEnd().isAfter(LocalDateTime.now()))
                         .sorted((Comparator.comparing(Booking::getStart)).reversed())
                         .collect(Collectors.toList());
 
             case "PAST":
-                log.info("Get list by status PAST");
-                return saveBooking.stream()
+                return bookings.stream()
                         .filter(x -> x.getEnd().isBefore(LocalDateTime.now()))
                         .sorted((Comparator.comparing(Booking::getStart)).reversed())
                         .collect(Collectors.toList());
 
             case "FUTURE":
-                log.info("Get list by status FUTURE");
-                return saveBooking.stream()
+                return bookings.stream()
                         .filter(x -> x.getStart().isAfter(LocalDateTime.now()))
                         .sorted((Comparator.comparing(Booking::getStart)).reversed())
                         .collect(Collectors.toList());
 
             case "WAITING":
-                log.info("Get list by status WAITING");
-                return saveBooking.stream()
+                return bookings.stream()
                         .filter(x -> x.getStatus().equals(BookingStatus.WAITING))
                         .sorted((Comparator.comparing(Booking::getStart)).reversed())
                         .collect(Collectors.toList());
 
             case "REJECTED":
-                log.info("Get list by status REJECTED");
-                return saveBooking.stream()
+                return bookings.stream()
                         .filter(x -> x.getStatus().equals(BookingStatus.REJECTED))
                         .sorted((Comparator.comparing(Booking::getStart)).reversed())
                         .collect(Collectors.toList());

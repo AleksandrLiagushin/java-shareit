@@ -56,6 +56,7 @@ public class ItemService {
         }
 
         Item savedItem = itemStorage.findById(itemId).orElseThrow();
+
         if (item.getAvailable() != null) {
             savedItem.setAvailable(item.getAvailable());
         }
@@ -120,21 +121,21 @@ public class ItemService {
     public Comment addComment(long userId, long itemId, CommentDto commentDto) {
 
         if (commentDto.getText().isBlank()) {
-            throw new ItemNotExistException("This field can't be empty, write the text");
+            throw new ItemNotExistException("Empty text field is not allowed");
         }
 
-        List<Booking> bookingsItemByUser = bookingStorage.findByBookerIdAndItemId(userId, itemId);
+        List<Booking> userBookings = bookingStorage.findByBookerIdAndItemId(userId, itemId);
 
-        if (bookingsItemByUser.isEmpty()) {
-            throw new ItemNotFoundException("You can't write the comment, because you didn't booking this item");
+        if (userBookings.isEmpty()) {
+            throw new ItemNotFoundException("Comments is not allowed. Cause: you haven't booked this item before");
         }
 
-        List<Booking> bookingsEndsBeforeNow = bookingsItemByUser.stream()
+        List<Booking> finishedBookings = userBookings.stream()
                 .filter(x -> x.getEnd().isBefore(LocalDateTime.now()))
                 .collect(Collectors.toList());
 
-        if (bookingsEndsBeforeNow.isEmpty()) {
-            throw new ItemNotExistException("You can't comment, because you didn't use this item");
+        if (finishedBookings.isEmpty()) {
+            throw new ItemNotExistException("Comments is allowed only after returning item to owner");
         }
 
         Comment comment = Comment.builder()
