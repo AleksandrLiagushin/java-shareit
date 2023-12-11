@@ -3,36 +3,39 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.UserCreationException;
 import ru.practicum.shareit.exception.UserNotExistException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Slf4j
 public class UserService {
-    private final UserStorage userStorage;
+    private final UserRepo userStorage;
     private final UserMapper userMapper;
 
+    @Transactional(rollbackFor = Exception.class)
     public UserDto create(User user) {
-        if (userStorage.existByEmail(user.getEmail())) {
+        try {
+            return userMapper.toDto(userStorage.save(user));
+        } catch (Exception e) {
             throw new UserCreationException("User with such email already exists");
         }
 
-        return userMapper.toDto(userStorage.create(user));
     }
 
+    @Transactional
     public UserDto update(long id, User user) {
         if (!userStorage.existsById(id)) {
             throw new UserNotExistException("No user with such was found");
         }
-        if (userStorage.existByEmail(user.getEmail()) && !userStorage.getById(id).getEmail().equals(user.getEmail())) {
-            throw new UserCreationException("User with such email already exists");
-        }
 
-        User saved = userStorage.getById(id);
+        User saved = userStorage.findById(id).orElseThrow() ;
 
         if (user.getName() != null) {
             saved.setName(user.getName());
@@ -41,21 +44,21 @@ public class UserService {
             saved.setEmail(user.getEmail());
         }
 
-        return userMapper.toDto(userStorage.update(saved));
+        return userMapper.toDto(userStorage.save(saved));
     }
 
-    public void delete(Long userId) {
-        userStorage.delete(userId);
+    @Transactional
+    public void deleteById(Long userId) {
+        userStorage.deleteById(userId);
     }
 
     public User getById(Long userId) {
-        if (!userStorage.existsById(userId)) {
-            throw new UserNotExistException("No user with such id was found");
-        }
-        return userStorage.getById(userId);
+        return userStorage.findById(userId).orElseThrow();
     }
 
-    public List<User> getAll() {
-        return userStorage.getAll();
+    public List<UserDto> getAll() {
+        return userStorage.findAll().stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

@@ -14,7 +14,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/users")
@@ -45,14 +44,12 @@ public class UserController {
     @GetMapping
     public List<UserDto> getAll() {
         log.info("Requested all users");
-        return userService.getAll().stream()
-                .map(userMapper::toDto)
-                .collect(Collectors.toList());
+        return userService.getAll();
     }
 
     @DeleteMapping("/{userId}")
     public void delete(@PathVariable long userId) {
         log.info("Requested user delete by id = {}", userId);
-        userService.delete(userId);
+        userService.deleteById(userId);
     }
 }

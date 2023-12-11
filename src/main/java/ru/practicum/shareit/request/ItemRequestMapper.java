@@ -10,14 +10,12 @@ public class ItemRequestMapper {
 
     public ItemRequest toEntity(ItemDto dto) {
         return ItemRequest.builder()
-                .name(dto.getName())
                 .description(dto.getDescription())
                 .build();
     }
 
     public ItemRequestDto toDto(ItemRequest entity) {
         return ItemRequestDto.builder()
-                .name(entity.getName())
                 .description(entity.getDescription())
                 .build();
     }
