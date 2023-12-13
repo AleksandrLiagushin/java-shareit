@@ -12,19 +12,12 @@ import java.util.List;
 @Setter
 @Builder
 public class ItemForOwnerDto {
-    private long id;
-
-    private String name;
-
-    private String description;
-
-    private Boolean available;
-
-    private long requestId;
-
+    private final long id;
+    private final String name;
+    private final String description;
+    private final Boolean available;
+    private final long requestId;
     private BookingForOwnerDto lastBooking;
-
     private BookingForOwnerDto nextBooking;
-
     private List<CommentDto> comments;
 }

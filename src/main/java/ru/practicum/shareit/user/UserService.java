@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @Slf4j
 public class UserService {
-    private final UserRepo userStorage;
+    private final UserRepository userStorage;
     private final UserMapper userMapper;
 
     @Transactional(rollbackFor = Exception.class)

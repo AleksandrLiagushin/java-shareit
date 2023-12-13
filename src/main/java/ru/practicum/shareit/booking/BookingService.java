@@ -9,9 +9,9 @@ import ru.practicum.shareit.exception.ItemNotExistException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.TimeValidationException;
 import ru.practicum.shareit.exception.UserNotFoundException;
-import ru.practicum.shareit.item.ItemRepo;
+import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserRepo;
+import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class BookingService {
-    private final BookingRepo bookingStorage;
-    private final ItemRepo itemStorage;
-    private final UserRepo userStorage;
+    private final BookingRepository bookingStorage;
+    private final ItemRepository itemStorage;
+    private final UserRepository userStorage;
     private final BookingMapper bookingMapper;
 
     @Transactional(rollbackFor = Exception.class)
@@ -62,11 +62,7 @@ public class BookingService {
     }
 
     @Transactional
-    public Booking checkRequest(long userId, long bookingId, String approved) {
-
-        if (approved.isBlank()) {
-            throw new ItemNotFoundException("Approved field can't be empty");
-        }
+    public Booking checkRequest(long userId, long bookingId, boolean approved) {
 
         if (!bookingStorage.existsById(bookingId)) {
             throw new ItemNotFoundException("Booking with such id doesn't exist");
@@ -88,23 +84,15 @@ public class BookingService {
             throw new ItemNotExistException("This booking has been already approved");
         }
 
-        switch (approved) {
-            case "true":
-                if (!booking.getItem().getAvailable()) {
-                    booking.setStatus(BookingStatus.WAITING);
-                }
-
-                booking.setStatus(BookingStatus.APPROVED);
-
-                return booking;
-
-            case "false":
-                booking.setStatus(BookingStatus.REJECTED);
-                return booking;
-
-            default:
-                throw new ItemNotFoundException("Approved can be only true or false");
+        if (approved) {
+            if (!booking.getItem().getAvailable()) {
+                booking.setStatus(BookingStatus.WAITING);
+            }
+            booking.setStatus(BookingStatus.APPROVED);
+        } else {
+            booking.setStatus(BookingStatus.REJECTED);
         }
+        return booking;
     }
 
     public Booking getBooking(long userId, long bookingId) {

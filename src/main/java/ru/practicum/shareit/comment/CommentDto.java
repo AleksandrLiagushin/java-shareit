@@ -10,13 +10,13 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class CommentDto {
-    private long id;
+    private final long id;
 
     @NotNull
-    private String text;
+    private final String text;
 
     @Positive
-    private long authorId;
-    private String authorName;
-    private LocalDateTime created;
+    private final long authorId;
+    private final String authorName;
+    private final LocalDateTime created;
 }

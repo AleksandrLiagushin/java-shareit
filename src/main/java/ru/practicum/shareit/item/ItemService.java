@@ -5,19 +5,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingMapper;
-import ru.practicum.shareit.booking.BookingRepo;
+import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.comment.CommentDto;
 import ru.practicum.shareit.comment.CommentMapper;
-import ru.practicum.shareit.comment.CommentRepo;
+import ru.practicum.shareit.comment.CommentRepository;
 import ru.practicum.shareit.exception.ItemNotExistException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemForOwnerDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserRepo;
+import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -29,12 +29,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ItemService {
-    private final ItemRepo itemStorage;
+    private final ItemRepository itemStorage;
     private final ItemMapper itemMapper;
-    private final UserRepo userStorage;
-    private final BookingRepo bookingStorage;
+    private final UserRepository userStorage;
+    private final BookingRepository bookingStorage;
     private final BookingMapper bookingMapper;
-    private final CommentRepo commentStorage;
+    private final CommentRepository commentStorage;
     private final CommentMapper commentMapper;
 
     @Transactional(rollbackFor = Exception.class)
@@ -138,12 +138,11 @@ public class ItemService {
             throw new ItemNotExistException("Comments is allowed only after returning item to owner");
         }
 
-        Comment comment = Comment.builder()
-                .author(userStorage.getReferenceById(userId))
-                .text(commentDto.getText())
-                .item(itemStorage.getReferenceById(itemId))
-                .created(LocalDateTime.now())
-                .build();
+        Comment comment = new Comment();
+        comment.setAuthor(userStorage.getReferenceById(userId));
+        comment.setText(commentDto.getText());
+        comment.setItem(itemStorage.getReferenceById(itemId));
+        comment.setCreated(LocalDateTime.now());
 
         return commentStorage.save(comment);
     }

@@ -5,11 +5,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class CommentMapper {
     public Comment toEntity(CommentDto dto) {
-        return Comment.builder()
-                .id(dto.getId())
-                .text(dto.getText())
-                .created(dto.getCreated())
-                .build();
+        Comment comment = new Comment();
+        comment.setId(dto.getId());
+        comment.setText(dto.getText());
+        comment.setCreated(dto.getCreated());
+        return comment;
     }
 
     public CommentDto toDto(Comment entity) {

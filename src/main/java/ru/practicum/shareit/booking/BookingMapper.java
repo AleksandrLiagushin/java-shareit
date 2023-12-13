@@ -8,11 +8,11 @@ import ru.practicum.shareit.booking.dto.BookingForOwnerDto;
 @Component
 public class BookingMapper {
     public Booking toEntity(BookingDtoIn dto) {
-        return Booking.builder()
-                .id(dto.getId())
-                .start(dto.getStart())
-                .end(dto.getEnd())
-                .build();
+        Booking booking = new Booking();
+        booking.setId(dto.getId());
+        booking.setStart(dto.getStart());
+        booking.setEnd(dto.getEnd());
+        return booking;
     }
 
     public BookingDtoOut toDto(Booking entity) {

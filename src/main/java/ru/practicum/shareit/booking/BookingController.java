@@ -41,7 +41,7 @@ public class BookingController {
     @PatchMapping("/{bookingId}")
     public Booking checkRequest(@RequestHeader("X-Sharer-User-Id") long userId,
                                 @PathVariable long bookingId,
-                                @RequestParam String approved) {
+                                @RequestParam boolean approved) {
         log.info("Requested checking for booking id = {}", bookingId);
         return bookingService.checkRequest(userId, bookingId, approved);
     }
