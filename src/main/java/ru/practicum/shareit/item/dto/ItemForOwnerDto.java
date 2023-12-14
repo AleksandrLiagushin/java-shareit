@@ -3,27 +3,21 @@ package ru.practicum.shareit.item.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import ru.practicum.shareit.booking.dto.BookingForOwnerDto;
+import ru.practicum.shareit.comment.CommentDto;
 
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Setter
 @Builder
-public class ItemDto {
+public class ItemForOwnerDto {
     private final long id;
-
-    @NotNull
-    @NotEmpty
     private final String name;
-
-    @NotNull
-    @NotEmpty
     private final String description;
-
-    @NotNull
-    @AssertTrue
     private final Boolean available;
     private final long requestId;
+    private BookingForOwnerDto lastBooking;
+    private BookingForOwnerDto nextBooking;
+    private List<CommentDto> comments;
 }

@@ -1,0 +1,48 @@
+CREATE TABLE IF NOT EXISTS users (
+    user_id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    user_name VARCHAR(255) NOT NULL,
+    user_email VARCHAR(512) UNIQUE NOT NULL
+);
+
+--CREATE TABLE IF NOT EXISTS requests (
+--    request_id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+--    description VARCHAR(512),
+--    user_id BIGINT NOT NULL,
+--    created TIMESTAMP WITHOUT TIME ZONE
+--);
+
+CREATE TABLE IF NOT EXISTS items (
+    item_id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    item_name VARCHAR(255) NOT NULL,
+    item_description VARCHAR(512),
+    is_available BOOL NOT NULL,
+    user_id BIGINT
+);
+
+CREATE TABLE IF NOT EXISTS bookings (
+    booking_id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    start_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    end_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    item_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    status ENUM ('WAITING', 'APPROVED', 'REJECTED', 'CANCELED')
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+    comment_id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    text varchar,
+    item_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    created TIMESTAMP WITHOUT TIME ZONE NOT NULL
+);
+
+--ALTER TABLE requests ADD CONSTRAINT fk_request_id FOREIGN KEY(user_id) REFERENCES users(user_id) ON DELETE CASCADE;
+
+ALTER TABLE items ADD CONSTRAINT fk_item_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE;
+--ALTER TABLE items ADD CONSTRAINT fk_item_request_id FOREIGN KEY (request_id) REFERENCES requests(request_id) ON DELETE CASCADE;
+
+ALTER TABLE bookings ADD CONSTRAINT fk_booking_item_id FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE;
+ALTER TABLE bookings ADD CONSTRAINT fk_booking_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE;
+
+ALTER TABLE comments ADD CONSTRAINT fk_comment_item_id FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE;
+ALTER TABLE comments ADD CONSTRAINT fk_comment_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE;
