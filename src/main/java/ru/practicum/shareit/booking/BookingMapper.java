@@ -20,14 +20,15 @@ public class BookingMapper {
             return null;
         }
 
-        return BookingDtoOut.builder()
-                .id(entity.getId())
-                .item(entity.getItem())
-                .booker(entity.getBooker())
-                .start(entity.getStart())
-                .end(entity.getEnd())
-                .status(entity.getStatus())
-                .build();
+        BookingDtoOut dto = new BookingDtoOut();
+        dto.setId(entity.getId());
+        dto.setItem(entity.getItem());
+        dto.setBooker(entity.getBooker());
+        dto.setStart(entity.getStart());
+        dto.setEnd(entity.getEnd());
+        dto.setStatus(entity.getStatus());
+
+        return dto;
     }
 
     public BookingForOwnerDto toOwnerDto(Booking entity) {

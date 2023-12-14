@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class BookingService {
     private final BookingRepository bookingStorage;
     private final ItemRepository itemStorage;
