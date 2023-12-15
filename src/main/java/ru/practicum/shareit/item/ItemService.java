@@ -17,6 +17,7 @@ import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemForOwnerDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.RequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
@@ -35,14 +36,17 @@ public class ItemService {
     private final BookingMapper bookingMapper;
     private final CommentRepository commentStorage;
     private final CommentMapper commentMapper;
+    private final RequestRepository requestRepository;
 
     @Transactional(rollbackFor = Exception.class)
-    public ItemDto create(Item item, long userId) {
+    public ItemDto create(ItemDto dto, long userId) {
         if (!userStorage.existsById(userId)) {
             throw new UserNotFoundException("User not found");
         }
 
+        Item item = itemMapper.toEntity(dto);
         item.setOwner(userStorage.findById(userId).orElseThrow());
+        requestRepository.findById(dto.getRequestId()).ifPresent(item::setRequest);
 
         return itemMapper.toDto(itemStorage.save(item));
 

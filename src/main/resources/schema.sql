@@ -4,19 +4,20 @@ CREATE TABLE IF NOT EXISTS users (
     user_email VARCHAR(512) UNIQUE NOT NULL
 );
 
---CREATE TABLE IF NOT EXISTS requests (
---    request_id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
---    description VARCHAR(512),
---    user_id BIGINT NOT NULL,
---    created TIMESTAMP WITHOUT TIME ZONE
---);
+CREATE TABLE IF NOT EXISTS requests (
+    request_id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    description VARCHAR(512),
+    user_id BIGINT NOT NULL,
+    created TIMESTAMP WITHOUT TIME ZONE
+);
 
 CREATE TABLE IF NOT EXISTS items (
     item_id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     item_name VARCHAR(255) NOT NULL,
     item_description VARCHAR(512),
     is_available BOOL NOT NULL,
-    user_id BIGINT
+    user_id BIGINT,
+    request_id BIGINT
 );
 
 CREATE TABLE IF NOT EXISTS bookings (
@@ -36,10 +37,10 @@ CREATE TABLE IF NOT EXISTS comments (
     created TIMESTAMP WITHOUT TIME ZONE NOT NULL
 );
 
---ALTER TABLE requests ADD CONSTRAINT fk_request_id FOREIGN KEY(user_id) REFERENCES users(user_id) ON DELETE CASCADE;
+ALTER TABLE requests ADD CONSTRAINT fk_request_id FOREIGN KEY(user_id) REFERENCES users(user_id) ON DELETE CASCADE;
 
 ALTER TABLE items ADD CONSTRAINT fk_item_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE;
---ALTER TABLE items ADD CONSTRAINT fk_item_request_id FOREIGN KEY (request_id) REFERENCES requests(request_id) ON DELETE CASCADE;
+ALTER TABLE items ADD CONSTRAINT fk_item_request_id FOREIGN KEY (request_id) REFERENCES requests(request_id) ON DELETE CASCADE;
 
 ALTER TABLE bookings ADD CONSTRAINT fk_booking_item_id FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE;
 ALTER TABLE bookings ADD CONSTRAINT fk_booking_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE;

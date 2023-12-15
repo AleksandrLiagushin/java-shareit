@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
@@ -112,17 +113,17 @@ public class BookingService {
         return saveBooking;
     }
 
-    public List<Booking> getBookingsByStatus(long userId, String state) {
+    public List<Booking> getBookingsByStatus(long userId, String state, Pageable pageable) {
 
         if (!userStorage.existsById(userId)) {
             throw new ItemNotFoundException("User with such id doesn't exist");
         }
 
-        List<Booking> bookings = bookingStorage.findByBookerId(userId);
+        List<Booking> bookings = bookingStorage.findByBookerId(userId, pageable);
         return checkState(bookings, state);
     }
 
-    public List<Booking> getUserBookings(long ownerId, String state) {
+    public List<Booking> getUserBookings(long ownerId, String state, Pageable pageable) {
 
         List<Item> itemByOwnerId = itemStorage.findByOwnerId(ownerId);
 
@@ -133,7 +134,7 @@ public class BookingService {
         List<Long> allItemsByUser = itemByOwnerId.stream()
                 .map(Item::getId)
                 .collect(Collectors.toList());
-        List<Booking> bookings = bookingStorage.findByItemIdIn(allItemsByUser);
+        List<Booking> bookings = bookingStorage.findByItemIdIn(allItemsByUser, pageable);
 
         return checkState(bookings, state);
     }

@@ -30,9 +30,10 @@ public class ItemController {
     private final CommentMapper commentMapper;
 
     @PostMapping
-    public ItemDto create(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody ItemDto itemDto) {
+    public ItemDto create(@RequestHeader("X-Sharer-User-Id") long userId,
+                          @Valid @RequestBody ItemDto itemDto) {
         log.info("Requested item creation. ItemDto = {}", itemDto);
-        return itemService.create(itemMapper.toEntity(itemDto), userId);
+        return itemService.create(itemDto, userId);
     }
 
     @PostMapping("/{itemId}/comment")
