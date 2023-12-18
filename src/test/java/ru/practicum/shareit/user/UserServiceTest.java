@@ -152,6 +152,5 @@ class UserServiceTest {
                 .name(name)
                 .email(email)
                 .build();
-
     }
 }

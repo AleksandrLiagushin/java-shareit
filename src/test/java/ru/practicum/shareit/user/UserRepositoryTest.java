@@ -16,8 +16,8 @@ class UserRepositoryTest {
     void findByIdTest_shouldReturnSavedUserWithId1() {
         User user = new User();
         user.setId(1L);
-        user.setName("userName");
-        user.setEmail("email@mail.ru");
+        user.setName("Vasya");
+        user.setEmail("vas@mail.ru");
 
         userRepository.save(user);
         User saved = userRepository.findById(user.getId()).orElseThrow();
