@@ -1,36 +1,59 @@
 package ru.practicum.shareit.request;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.List;
+import java.util.stream.Collectors;
+
 class RequestMapperTest {
+    private final RequestMapper requestMapper = new RequestMapper();
 
     @Test
-    void toDto() {
+    void toDto_shouldReturnDtoFromEntity() {
+        User owner = createUser(1L, "Vasya", "vas@email.com");
+        Request request = new Request();
+        request.setId(1L);
+        request.setUser(owner);
+        request.setDescription("text");
+        request.setCreated(LocalDateTime.of(2023, Month.JULY, 27, 10, 0));
+        Item item = createItem(1L, "Item", "Description", owner, true);
+        item.setRequest(request);
+        RequestDto dto = new RequestDto();
+        dto.setId(1L);
+        dto.setDescription("text");
+        dto.setRequester(1L);
+        dto.setCreated(LocalDateTime.of(2023, Month.JULY, 27, 10, 0));
+        dto.setItems(List.of(item).stream().map(requestMapper::toItemsRequestDto).collect(Collectors.toList()));
+
+        RequestDto actual = requestMapper.toDto(request, List.of(item));
+
+        Assertions.assertEquals(dto.getRequester(), actual.getRequester());
+        Assertions.assertEquals(dto.getItems(), actual.getItems());
     }
 
     @Test
     void toEntity() {
-    }
-
-    private Request createRequest(long id, String text, User user) {
+        RequestDto dto = new RequestDto();
+        dto.setId(1L);
+        dto.setDescription("text");
+        dto.setRequester(1L);
+        dto.setCreated(LocalDateTime.of(2023, Month.JULY, 27, 10, 0));
         Request request = new Request();
-        request.setId(id);
-        request.setDescription(text);
-        request.setUser(user);
-        return request;
+        request.setId(1L);
+        request.setDescription("text");
+        request.setCreated(LocalDateTime.of(2023, Month.JULY, 27, 10, 0));
+
+        Request actual = requestMapper.toEntity(dto);
+
+        Assertions.assertEquals(actual.getDescription(), request.getDescription());
     }
 
-    private RequestDto createRequestDto(long id, String text, long userId) {
-        RequestDto requestDto = new RequestDto();
-        requestDto.setId(id);
-        requestDto.setDescription(text);
-        requestDto.setRequester(userId);
-        return requestDto;
-    }
-
-    private Item createItem(long id, String name, String text, boolean available, User user) {
+    private Item createItem(long id, String name, String text, User user, boolean available) {
         Item item = new Item();
         item.setId(id);
         item.setName(name);

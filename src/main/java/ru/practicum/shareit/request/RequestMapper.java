@@ -18,7 +18,7 @@ public class RequestMapper {
         return dto;
     }
 
-    private ItemsForRequestDto toItemsRequestDto(Item item) {
+    public ItemsForRequestDto toItemsRequestDto(Item item) {
         ItemsForRequestDto dto = new ItemsForRequestDto();
         dto.setId(item.getId());
         dto.setName(item.getName());

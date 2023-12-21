@@ -1,10 +1,8 @@
 package ru.practicum.shareit.request;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter
-@Getter
+@Data
 public class ItemsForRequestDto {
     private long id;
     private String name;

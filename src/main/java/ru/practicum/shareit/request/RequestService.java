@@ -9,7 +9,6 @@ import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +23,7 @@ public class RequestService {
     private final ItemRepository itemRepository;
 
 
-    public Request create(RequestDto requestDto, @Valid long userId) {
+    public Request create(RequestDto requestDto, long userId) {
         if (requestDto.getId() != 0) {
             throw new IdValidationException("Id must be zero");
         }
