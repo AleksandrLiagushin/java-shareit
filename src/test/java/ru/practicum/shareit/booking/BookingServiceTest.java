@@ -326,6 +326,45 @@ class BookingServiceTest {
     }
 
     @Test
+    public void getBooking_shouldThrowUserNotFoundException() {
+        UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                () -> bookingService.getBooking(1L, 1L));
+        assertNotNull(exception.getMessage());
+    }
+
+    @Test
+    public void getBooking_shouldThrowItemNotFoundException() {
+        when(userRepository.existsById(anyLong())).thenReturn(true);
+
+        ItemNotFoundException exception = assertThrows(
+                ItemNotFoundException.class,
+                () -> bookingService.getBooking(1L, 1L));
+        assertNotNull(exception.getMessage());
+    }
+
+    @Test
+    public void getBooking_shouldThrowItemNotFoundExceptionWhenOwnerEqualsBooker() {
+        User user = createUser(1L, "Vasya", "vas@email.com");
+        User user2 = createUser(2L, "Vanya", "van@email.com");
+        Item item = createItem(1L, "Item", "Description", user, true);
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setItem(item);
+        booking.setStart(LocalDateTime.of(2024, Month.APRIL, 8, 12, 30));
+        booking.setEnd(LocalDateTime.of(2024, Month.APRIL, 12, 12, 30));
+        booking.setBooker(user2);
+        booking.setStatus(BookingStatus.APPROVED);
+
+        when(userRepository.existsById(anyLong())).thenReturn(true);
+
+        ItemNotFoundException exception = assertThrows(
+                ItemNotFoundException.class,
+                () -> bookingService.getBooking(3L, 1L));
+        assertNotNull(exception.getMessage());
+    }
+
+    @Test
     void getBookingsByStatus() {
         List<Booking> bookingsByUserId = new ArrayList<>();
         when(userRepository.existsById(1L)).thenReturn(true);
