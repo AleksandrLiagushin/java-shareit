@@ -7,13 +7,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.Month;
+
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class BookingControllerTest {
@@ -80,35 +93,35 @@ class BookingControllerTest {
 
     @Test
     void checkRequest() throws Exception {
-//        User user = createUser(1L, "Vasya", "vas@email.com");
-//        User user2 = createUser(2L, "Vanya", "van@email.com");
-//        Item item = createItem(1L, "Item", "Description", user, true);
-//        Booking booking = new Booking();
-//        booking.setId(1L);
-//        booking.setItem(item);
-//        booking.setStart(LocalDateTime.of(2024, Month.APRIL, 8, 12, 30));
-//        booking.setEnd(LocalDateTime.of(2024, Month.APRIL, 12, 12, 30));
-//        booking.setBooker(user2);
-//        booking.setStatus(BookingStatus.WAITING);
-//
-//        when(bookingService.checkRequest(anyLong(), anyLong(), anyBoolean())).thenReturn(booking);
-//
-//        mockMvc.perform(patch("/bookings/{bookingId}", booking.getId())
-//                        .header("X-Sharer-User-Id", 1L)
-//                        .param("approved", String.valueOf(true))
-//                        .content(objectMapper.writeValueAsString(booking))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id").value(1L))
-//                .andExpect(jsonPath("$.status").value("APPROVED"))
-//                .andExpect(jsonPath("$.start[0]").value(2024))
-//                .andExpect(jsonPath("$.start[1]").value(4));
-//        Mockito.verify(bookingRepository, times(0)).save(booking);
-//        Mockito.verify(bookingService, times(1)).checkRequest(anyLong(), anyLong(), anyBoolean());
-//        Mockito.verifyNoMoreInteractions(bookingService);
+        User user = createUser(1L, "Vasya", "vas@email.com");
+        User user2 = createUser(2L, "Vanya", "van@email.com");
+        Item item = createItem(1L, "Item", "Description", user, true);
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setItem(item);
+        booking.setStart(LocalDateTime.of(2024, Month.APRIL, 8, 12, 30));
+        booking.setEnd(LocalDateTime.of(2024, Month.APRIL, 12, 12, 30));
+        booking.setBooker(user2);
+        booking.setStatus(BookingStatus.APPROVED);
+
+        when(bookingService.checkRequest(anyLong(), anyLong(), anyBoolean())).thenReturn(booking);
+
+        mockMvc.perform(patch("/bookings/{bookingId}", booking.getId())
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("approved", String.valueOf(true))
+                        .content(objectMapper.writeValueAsString(booking))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.status").value("APPROVED"))
+                .andExpect(jsonPath("$.start[0]").value(2024))
+                .andExpect(jsonPath("$.start[1]").value(4));
+        Mockito.verify(bookingRepository, times(0)).save(booking);
+        Mockito.verify(bookingService, times(1)).checkRequest(anyLong(), anyLong(), anyBoolean());
+        Mockito.verifyNoMoreInteractions(bookingService);
     }
 
     @Test

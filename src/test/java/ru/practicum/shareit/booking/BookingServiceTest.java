@@ -27,6 +27,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -357,6 +358,8 @@ class BookingServiceTest {
         booking.setStatus(BookingStatus.APPROVED);
 
         when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(bookingRepository.existsById(anyLong())).thenReturn(true);
+        when(bookingRepository.findById(anyLong())).thenReturn(Optional.of(booking));
 
         ItemNotFoundException exception = assertThrows(
                 ItemNotFoundException.class,
@@ -380,6 +383,14 @@ class BookingServiceTest {
     }
 
     @Test
+    public void getBookingsByStatus_shouldThrowItemNotFoundException() {
+        ItemNotFoundException exception = assertThrows(
+                ItemNotFoundException.class,
+                () -> bookingService.getBookingsByStatus(1L, "ALL", any()));
+        assertNotNull(exception.getMessage());
+    }
+
+    @Test
     void getUserBookings() {
         User user = createUser(1L, "Vasya", "vas@email.com");
         Item item = createItem(1L, "Item", "Description", user, true);
@@ -398,6 +409,14 @@ class BookingServiceTest {
                 Sort.by("start").descending()));
 
         Assertions.assertEquals(allBooking, result);
+    }
+
+    @Test
+    public void getUserBookings_shouldThrowItemNotFoundException() {
+        ItemNotFoundException exception = assertThrows(
+                ItemNotFoundException.class,
+                () -> bookingService.getBookingsByStatus(1L, "ALL", any()));
+        assertNotNull(exception.getMessage());
     }
 
     @Test
