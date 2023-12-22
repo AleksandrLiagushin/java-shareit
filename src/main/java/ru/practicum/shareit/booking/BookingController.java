@@ -2,6 +2,9 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,11 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
+
 
 @Slf4j
 @RestController
 @RequestMapping(path = "/bookings")
+@Validated
 @RequiredArgsConstructor
 public class BookingController {
 
@@ -48,15 +54,24 @@ public class BookingController {
 
     @GetMapping
     public List<Booking> getBookingsByStatus(@RequestHeader("X-Sharer-User-Id") long userId,
-                                             @RequestParam(defaultValue = "ALL") String state) {
+                                             @RequestParam(defaultValue = "ALL") String state,
+                                             @RequestParam(defaultValue = "0") @Min(0) int from,
+                                             @RequestParam(defaultValue = "10") @Min(1) int size) {
+
         log.info("Requested all bookings with state = {} of user id = {}", state, userId);
-        return bookingService.getBookingsByStatus(userId, state);
+        return bookingService.getBookingsByStatus(userId, state,
+                PageRequest.of(from / size, size, Sort.by("start")
+                        .descending()));
     }
 
     @GetMapping("/owner")
     public List<Booking> getUserBookings(@RequestHeader("X-Sharer-User-Id") long userId,
-                                         @RequestParam(defaultValue = "ALL") String state) {
+                                         @RequestParam(defaultValue = "ALL") String state,
+                                         @RequestParam(defaultValue = "0") @Min(0) int from,
+                                         @RequestParam(defaultValue = "10") @Min(1) int size) {
         log.info("Requested all bookings with {} state for owner = {}", state, userId);
-        return bookingService.getUserBookings(userId, state);
+        return bookingService.getUserBookings(userId, state,
+                PageRequest.of(from / size, size, Sort.by("start")
+                        .descending()));
     }
 }

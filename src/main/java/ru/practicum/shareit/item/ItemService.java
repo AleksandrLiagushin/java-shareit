@@ -17,6 +17,7 @@ import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemForOwnerDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.RequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
@@ -28,33 +29,36 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ItemService {
-    private final ItemRepository itemStorage;
+    private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
-    private final UserRepository userStorage;
-    private final BookingRepository bookingStorage;
+    private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
-    private final CommentRepository commentStorage;
+    private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
+    private final RequestRepository requestRepository;
 
     @Transactional(rollbackFor = Exception.class)
-    public ItemDto create(Item item, long userId) {
-        if (!userStorage.existsById(userId)) {
+    public ItemDto create(ItemDto dto, long userId) {
+        if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException("User not found");
         }
 
-        item.setOwner(userStorage.findById(userId).orElseThrow());
+        Item item = itemMapper.toEntity(dto);
+        item.setOwner(userRepository.findById(userId).orElseThrow());
+        requestRepository.findById(dto.getRequestId()).ifPresent(item::setRequest);
 
-        return itemMapper.toDto(itemStorage.save(item));
+        return itemMapper.toDto(itemRepository.save(item));
 
     }
 
     @Transactional
     public ItemDto update(long userId, long itemId, Item item) {
-        if (itemStorage.findById(itemId).orElseThrow().getOwner().getId() != userId) {
+        if (itemRepository.findById(itemId).orElseThrow().getOwner().getId() != userId) {
             throw new UserNotFoundException("This item is owned by other user");
         }
 
-        Item savedItem = itemStorage.findById(itemId).orElseThrow();
+        Item savedItem = itemRepository.findById(itemId).orElseThrow();
 
         if (item.getAvailable() != null) {
             savedItem.setAvailable(item.getAvailable());
@@ -66,16 +70,16 @@ public class ItemService {
             savedItem.setDescription(item.getDescription());
         }
 
-        savedItem.setOwner(userStorage.findById(userId).orElseThrow());
+        savedItem.setOwner(userRepository.findById(userId).orElseThrow());
         savedItem.setId(itemId);
 
-        return itemMapper.toDto(itemStorage.save(savedItem));
+        return itemMapper.toDto(itemRepository.save(savedItem));
     }
 
     public ItemForOwnerDto getById(long itemId, long userId) {
-        Item item = itemStorage.findById(itemId).orElseThrow();
+        Item item = itemRepository.findById(itemId).orElseThrow();
         ItemForOwnerDto dto = itemMapper.toOwnerDto(item);
-        List<Booking> bookings = bookingStorage.findByItemIdAndStatus(itemId, BookingStatus.APPROVED);
+        List<Booking> bookings = bookingRepository.findByItemIdAndStatus(itemId, BookingStatus.APPROVED);
 
         Booking lastBooking = bookings.stream()
                 .filter(x -> x.getEnd().isBefore(LocalDateTime.now()) ||
@@ -88,14 +92,14 @@ public class ItemService {
 
         dto.setLastBooking(item.getOwner().getId() == userId ? bookingMapper.toOwnerDto(lastBooking) : null);
         dto.setNextBooking(item.getOwner().getId() == userId ? bookingMapper.toOwnerDto(nextBooking) : null);
-        dto.setComments(commentStorage.findByItemId(itemId).stream()
+        dto.setComments(commentRepository.findByItemId(itemId).stream()
                 .map(commentMapper::toDto)
                 .collect(Collectors.toList()));
         return dto;
     }
 
     public List<ItemForOwnerDto> getItemsByUserId(long userId) {
-        return itemStorage.findByOwnerId(userId).stream()
+        return itemRepository.findByOwnerId(userId).stream()
                 .map(x -> getById(x.getId(), userId))
                 .collect(Collectors.toList());
     }
@@ -105,7 +109,7 @@ public class ItemService {
             return Collections.emptyList();
         }
 
-        List<Item> items = itemStorage.search(text.toLowerCase());
+        List<Item> items = itemRepository.search(text.toLowerCase());
 
         if (items.isEmpty()) {
             return Collections.emptyList();
@@ -123,7 +127,7 @@ public class ItemService {
             throw new ItemNotExistException("Empty text field is not allowed");
         }
 
-        List<Booking> userBookings = bookingStorage.findByBookerIdAndItemId(userId, itemId);
+        List<Booking> userBookings = bookingRepository.findByBookerIdAndItemId(userId, itemId);
 
         if (userBookings.isEmpty()) {
             throw new ItemNotFoundException("Comments is not allowed. Cause: you haven't booked this item before");
@@ -138,11 +142,11 @@ public class ItemService {
         }
 
         Comment comment = new Comment();
-        comment.setAuthor(userStorage.getReferenceById(userId));
+        comment.setAuthor(userRepository.getReferenceById(userId));
         comment.setText(commentDto.getText());
-        comment.setItem(itemStorage.getReferenceById(itemId));
+        comment.setItem(itemRepository.getReferenceById(itemId));
         comment.setCreated(LocalDateTime.now());
 
-        return commentStorage.save(comment);
+        return commentRepository.save(comment);
     }
 }

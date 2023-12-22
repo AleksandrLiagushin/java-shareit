@@ -1,13 +1,13 @@
 package ru.practicum.shareit.comment;
 
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
-@Getter
+@Data
 @Builder
 public class CommentDto {
     private final long id;

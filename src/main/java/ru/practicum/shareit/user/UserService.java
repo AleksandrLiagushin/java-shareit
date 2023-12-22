@@ -20,6 +20,10 @@ public class UserService {
 
     @Transactional(rollbackFor = Exception.class)
     public UserDto create(User user) {
+        if (user.getId() != 0) {
+            throw new UserCreationException("Id must be 0");
+        }
+
         try {
             return userMapper.toDto(userStorage.save(user));
         } catch (Exception e) {
@@ -47,6 +51,9 @@ public class UserService {
 
     @Transactional
     public void deleteById(Long userId) {
+        if (!userStorage.existsById(userId)) {
+            throw new UserNotExistException("Can't delete user with id = " + userId + " because user doesn't exist");
+        }
         userStorage.deleteById(userId);
     }
 
