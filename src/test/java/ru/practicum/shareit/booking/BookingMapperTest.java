@@ -10,7 +10,8 @@ import ru.practicum.shareit.user.User;
 import java.time.LocalDateTime;
 import java.time.Month;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class BookingMapperTest {
     private final BookingMapper bookingMapper = new BookingMapper();

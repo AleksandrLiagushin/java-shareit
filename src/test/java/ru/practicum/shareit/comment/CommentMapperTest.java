@@ -1,14 +1,13 @@
 package ru.practicum.shareit.comment;
 
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 import java.time.Month;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CommentMapperTest {
     private final CommentMapper commentMapper = new CommentMapper();

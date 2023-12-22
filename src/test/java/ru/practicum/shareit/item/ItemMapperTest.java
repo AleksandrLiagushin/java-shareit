@@ -10,8 +10,6 @@ import ru.practicum.shareit.request.Request;
 import java.time.LocalDateTime;
 import java.time.Month;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class ItemMapperTest {
     private final ItemMapper itemMapper = new ItemMapper();
 
