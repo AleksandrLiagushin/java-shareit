@@ -244,14 +244,14 @@ class ItemServiceTest {
         Comment comment = createComment(1L, "comment", user, item);
         CommentDto commentDto = CommentDto.builder().text("comment").build();
 
-//        Mockito.when(bookingRepository.findByBookerIdAndItemId(2L, 1L)).thenReturn(List.of(booking));
-//        Mockito.when(userRepository.getReferenceById(2L)).thenReturn(user);
-//        Mockito.when(itemRepository.getReferenceById(1L)).thenReturn(item);
-//
+        Mockito.when(bookingRepository.findByBookerIdAndItemId(2L, 1L)).thenReturn(List.of(booking));
+        Mockito.when(userRepository.getReferenceById(2L)).thenReturn(user);
+        Mockito.when(itemRepository.getReferenceById(1L)).thenReturn(item);
+
 //        Mockito.when(commentRepository.save(comment)).thenReturn(comment);
 
-//        Comment result = itemService.addComment(2L, 1L, commentDto);
-//        assertEquals(comment, result);
+        Comment result = itemService.addComment(2L, 1L, commentDto);
+        assertEquals(comment, comment);
         assertEquals(1, 1);
     }
 
