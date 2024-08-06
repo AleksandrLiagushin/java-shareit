@@ -20,7 +20,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
 
-
+// without controller
 @Slf4j
 @RestController
 @RequestMapping(path = "/bookings")
